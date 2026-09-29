@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ Master - Nền Tảng Học Lập Trình C++</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    pre {
+      counter-reset: line;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 flex flex-col h-screen overflow-hidden font-sans">
+
+  <!-- Header -->
+  <header class="bg-slate-800 border-b border-slate-700 px-6 py-3 flex items-center justify-between shadow-md">
+    <div class="flex items-center space-x-3">
+      <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-lg leading-none">C++</div>
+      <span class="text-xl font-bold tracking-tight text-white">Learn<span class="text-blue-400">Cpp</span></span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <span class="text-sm text-slate-400 hidden sm:inline">Tiến độ bài học: <strong id="progress-text" class="text-blue-400">0/5</strong></span>
+      <button onclick="runCode()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-emerald-900/40">
+        <i class="fa-solid fa-play text-xs"></i> Chạy thử
+      </button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar / Lesson List -->
+    <aside class="w-80 bg-slate-950/60 border-r border-slate-800 flex flex-col flex-shrink-0">
+      <div class="p-4 border-b border-slate-800">
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Danh sách bài học</h2>
+      </div>
+      <div id="lesson-list" class="flex-1 overflow-y-auto divide-y divide-slate-800/50">
+        <!-- Render bài học bằng JavaScript -->
+      </div>
+    </aside>
+
+    <!-- Main Content: Lý thuyết & Trình giả lập Editor -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <!-- Lý thuyết bài học -->
+      <section class="flex-1 overflow-y-auto p-6 border-b lg:border-b-0 lg:border-r border-slate-800 bg-slate-900/50">
+        <div class="max-w-2xl mx-auto space-y-4">
+          <div class="flex items-center gap-2">
+            <span id="lesson-badge" class="text-xs font-medium px-2.5 py-0.5 rounded bg-blue-900 text-blue-300">Cơ bản</span>
+          </div>
+          <h1 id="lesson-title" class="text-2xl font-bold text-white">Tiêu đề bài học</h1>
+          <div id="lesson-desc" class="text-slate-300 leading-relaxed space-y-3 text-sm">
+            <!-- Nội dung lý thuyết -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Editor & Terminal -->
+      <section class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+        <!-- Editor Header -->
+        <div class="bg-slate-900/80 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span class="flex items-center gap-2">
+            <i class="fa-regular fa-file-code text-blue-400"></i> main.cpp
+          </span>
+          <button onclick="resetCode()" class="hover:text-slate-200 transition-colors">
+            <i class="fa-solid fa-rotate-right"></i> Đặt lại
+          </button>
+        </div>
+
+        <!-- Code Area -->
+        <textarea id="code-editor" class="flex-1 bg-transparent p-4 font-mono text-sm text-blue-100 resize-none outline-none focus:ring-0 leading-relaxed selection:bg-blue-800/60" spellcheck="false"></textarea>
+
+        <!-- Console / Output -->
+        <div class="h-44 bg-slate-950 border-t border-slate-800 flex flex-col">
+          <div class="bg-slate-900/60 px-4 py-1.5 border-b border-slate-800/80 text-xs font-semibold text-slate-400 flex items-center justify-between">
+            <span>Terminal Output</span>
+            <button onclick="clearOutput()" class="hover:text-slate-200 text-[11px]">Xoá console</button>
+          </div>
+          <div id="output-console" class="flex-1 p-4 font-mono text-xs text-emerald-400 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+            Nhấn "Chạy thử" để biên dịch và kiểm tra kết quả code...
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Dữ liệu các bài học C++
+    const lessons = [
+      {
+        id: 1,
+        title: "1. Cấu trúc chương trình & Hello World",
+        category: "Cơ bản",
+        desc: `
+          <p>Chương trình C++ luôn bắt đầu chạy từ hàm <code>main()</code>. Thư viện <code>#include &lt;iostream&gt;</code> cho phép chúng ta dùng đối tượng <code>std::cout</code> để xuất dữ liệu ra màn hình.</p>
+          <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 text-xs font-mono text-slate-300">
+            <strong>std::cout &lt;&lt; "Nội dung";</strong> dùng để in chuỗi ra màn hình console.
+          </div>
+        `,
+        code: `#include <iostream>
+
+int main() {
+    std::cout << "Xin chao, C++!" << std::endl;
+    return 0;
+}`,
+        expectedOutput: "Xin chao, C++!"
+      },
+      {
+        id: 2,
+        title: "2. Biến và Kiểu dữ liệu",
+        category: "Cơ bản",
+        desc: `
+          <p>C++ là ngôn ngữ định kiểu tĩnh (statically typed). Bạn cần khai báo rõ kiểu dữ liệu trước khi sử dụng biến:</p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-300">
+            <li><code>int</code>: Số nguyên (ví dụ: 10, -5)</li>
+            <li><code>double</code>: Số thực (ví dụ: 3.14, -0.01)</li>
+            <li><code>std::string</code>: Chuỗi ký tự</li>
+          </ul>
+        `,
+        code: `#include <iostream>
+#include <string>
+
+int main() {
+    int age = 20;
+    double score = 9.5;
+    std::string name = "Nam";
+
+    std::cout << name << " | Tuoi: " << age << " | Diem: " << score << std::endl;
+    return 0;
+}`,
+        expectedOutput: "Nam | Tuoi: 20 | Diem: 9.5"
+      },
+      {
+        id: 3,
+        title: "3. Cấu trúc rẽ nhánh (If - Else)",
+        category: "Điều khiển luồng",
+        desc: `
+          <p>Câu lệnh <code>if-else</code> kiểm tra điều kiện logic. Nếu biểu thức trả về <code>true</code> thì khối lệnh bên trong sẽ được thực thi.</p>
+        `,
+        code: `#include <iostream>
+
+int main() {
+    int score = 8;
+
+    if (score >= 5) {
+        std::cout << "Ket qua: Qua mon!" << std::endl;
+    } else {
+        std::cout << "Ket qua: Hoc lai!" << std::endl;
+    }
+
+    return 0;
+}`,
+        expectedOutput: "Ket qua: Qua mon!"
+      },
+      {
+        id: 4,
+        title: "4. Vòng lặp For",
+        category: "Điều khiển luồng",
+        desc: `
+          <p>Vòng lặp <code>for</code> cho phép lặp lại một khối lệnh với số lần biết trước.</p>
+          <p>Cú pháp gồm 3 phần: <code>(khởi_tạo; điều_kiện; bước_nhảy)</code>.</p>
+        `,
+        code: `#include <iostream>
+
+int main() {
+    for (int i = 1; i <= 3; i++) {
+        std::cout << "Lan lap thu: " << i << std::endl;
+    }
+    return 0;
+}`,
+        expectedOutput: "Lan lap thu: 1\nLan lap thu: 2\nLan lap thu: 3"
+      },
+      {
+        id: 5,
+        title: "5. Hàm trong C++ (Functions)",
+        category: "Cấu trúc mã",
+        desc: `
+          <p>Hàm giúp gom nhóm các đoạn code tái sử dụng được thành một khối duy nhất. Hàm có thể nhận đối số truyền vào và trả về giá trị qua từ khóa <code>return</code>.</p>
+        `,
+        code: `#include <iostream>
+
+int tinhTong(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    int result = tinhTong(15, 25);
+    std::cout << "Tong 15 + 25 = " << result << std::endl;
+    return 0;
+}`,
+        expectedOutput: "Tong 15 + 25 = 40"
+      }
+    ];
+
+    let currentLessonIndex = 0;
+
+    const lessonListEl = document.getElementById('lesson-list');
+    const lessonTitleEl = document.getElementById('lesson-title');
+    const lessonBadgeEl = document.getElementById('lesson-badge');
+    const lessonDescEl = document.getElementById('lesson-desc');
+    const codeEditorEl = document.getElementById('code-editor');
+    const outputConsoleEl = document.getElementById('output-console');
+    const progressTextEl = document.getElementById('progress-text');
+
+    function renderLessonList() {
+      lessonListEl.innerHTML = '';
+      lessons.forEach((lesson, index) => {
+        const item = document.createElement('div');
+        const isActive = index === currentLessonIndex;
+        item.className = `p-3.5 cursor-pointer transition-colors border-l-4 ${
+          isActive 
+            ? 'bg-slate-800/90 border-blue-500 text-white' 
+            : 'border-transparent text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+        }`;
+        item.onclick = () => selectLesson(index);
+        item.innerHTML = `
+          <div class="text-xs font-semibold uppercase text-slate-500 tracking-wider mb-1">${lesson.category}</div>
+          <div class="text-sm font-medium ${isActive ? 'text-blue-300' : ''}">${lesson.title}</div>
+        `;
+        lessonListEl.appendChild(item);
+      });
+      progressTextEl.textContent = `${currentLessonIndex + 1}/${lessons.length}`;
+    }
+
+    function selectLesson(index) {
+      currentLessonIndex = index;
+      const lesson = lessons[index];
+
+      lessonTitleEl.textContent = lesson.title;
+      lessonBadgeEl.textContent = lesson.category;
+      lessonDescEl.innerHTML = lesson.desc;
+      codeEditorEl.value = lesson.code;
+
+      outputConsoleEl.textContent = "Nhấn \"Chạy thử\" để biên dịch và kiểm tra kết quả code...";
+      outputConsoleEl.className = "flex-1 p-4 font-mono text-xs text-slate-400 overflow-y-auto whitespace-pre-wrap leading-relaxed";
+
+      renderLessonList();
+    }
+
+    function resetCode() {
+      codeEditorEl.value = lessons[currentLessonIndex].code;
+    }
+
+    function clearOutput() {
+      outputConsoleEl.textContent = "";
+    }
+
+    // Giả lập runner cho trình duyệt
+    function runCode() {
+      outputConsoleEl.className = "flex-1 p-4 font-mono text-xs overflow-y-auto whitespace-pre-wrap leading-relaxed text-emerald-400";
+      outputConsoleEl.textContent = "Compiling g++ main.cpp -o main...\nRunning ./main\n--------------------------------\n";
+
+      setTimeout(() => {
+        const code = codeEditorEl.value.trim();
+        const currentLesson = lessons[currentLessonIndex];
+
+        // Mô phỏng kiểm tra cú pháp và kết quả
+        if (!code.includes("int main()") && !code.includes("int main ()")) {
+          outputConsoleEl.className = "flex-1 p-4 font-mono text-xs overflow-y-auto whitespace-pre-wrap leading-relaxed text-rose-400";
+          outputConsoleEl.textContent += "Lỗi biên dịch: Không tìm thấy hàm main() hợp lệ.";
+          return;
+        }
+
+        outputConsoleEl.textContent += currentLesson.expectedOutput + "\n\nProcess finished with exit code 0";
+      }, 350);
+    }
+
+    // Khởi chạy bài đầu tiên
+    selectLesson(0);
+  </script>
+</body>
+</html>
